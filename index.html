@@ -138,6 +138,28 @@
       .two-col, .select-row, .check-grid { grid-template-columns: 1fr; }
       .footnote { flex-direction: column; }
       .text-btn { padding: 7px 6px; }
+      .eyebrow, .panel-kicker, .number, .optional, .field-note, .quality,
+      .progress-meta, .output-foot, .footnote { font-size: 11.5px; }
+      .hint, label.field-label, .control-btn { font-size: 12px; }
+      .hint { margin-left: 0; }
+      .preset, .preset-label, .text-btn { font-size: 12px; }
+      .section-title, .panel-title { font-size: 14px; }
+      .check-item { font-size: 13px; }
+      .preview pre { font-size: 12px; }
+      .control-btn { padding: 9px 12px; }
+      .lang-switch button { font-size: 12px; padding: 5px 10px; }
+    }
+    .brand-name, .text-btn, .lang-switch button { white-space: nowrap; }
+    @media (max-width: 380px) {
+      .topbar { padding: 0 12px; }
+      .brand { gap: 8px; }
+      .brand-mark { width: 25px; height: 25px; font-size: 14px; }
+      .brand-name { font-size: 12px; letter-spacing: 0; }
+      .lang-switch button { padding: 4px 8px; }
+    }
+    /* iOS Safari zooms into inputs smaller than 16px on focus. */
+    @media (max-width: 980px), (hover: none) and (pointer: coarse) {
+      input[type="text"], textarea, select { font-size: 16px; }
     }
   </style>
 </head>
@@ -145,13 +167,13 @@
   <header class="topbar">
     <a class="brand" href="#top" aria-label="Prompt Studio home">
       <span class="brand-mark">P.</span>
-      <span class="brand-name">PROMPT STUDIO <span class="brand-sub">指令工坊</span></span>
+      <span class="brand-name">PROMPT STUDIO <span class="brand-sub" data-i18n="brandSub">指令工坊</span></span>
     </a>
     <div class="top-actions">
       <button class="text-btn" id="resetBtn" data-i18n="reset">清空內容</button>
       <div class="lang-switch" aria-label="Interface language">
-        <button type="button" data-lang="zh" class="active">中</button>
-        <button type="button" data-lang="en">EN</button>
+        <button type="button" data-lang="zh" class="active" aria-pressed="true" aria-label="繁體中文">中</button>
+        <button type="button" data-lang="en" aria-pressed="false" aria-label="English">EN</button>
       </div>
     </div>
   </header>
@@ -251,7 +273,7 @@
                 <input type="text" id="tone" data-i18n-placeholder="tonePh" placeholder="例如：直接、專業、自然，不要官腔">
               </div>
               <div>
-                <label class="field-label" for="outputLang" data-i18n="langLabel">指令與成果語言</label>
+                <label class="field-label" for="outputLang" data-i18n="langLabel">成果語言</label>
                 <select id="outputLang">
                   <option value="auto" data-i18n="langAuto">跟隨使用者語言</option>
                   <option value="zh-TW" data-i18n="langZh">繁體中文</option>
@@ -287,15 +309,15 @@
             <div class="quality"><span data-i18n="completeness">完整度</span> <strong id="score">0%</strong></div>
           </div>
           <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
-          <div class="progress-meta"><span id="progressText" data-i18n="startTyping">填寫需求後即時生成</span><span id="wordCount">0 chars</span></div>
+          <div class="progress-meta"><span id="progressText"></span><span id="wordCount"></span></div>
         </div>
         <div class="output-controls">
           <button class="control-btn primary" id="copyBtn" data-i18n="copy">複製完整指令</button>
           <button class="control-btn" id="downloadBtn" data-i18n="download">下載 .md</button>
           <button class="control-btn" id="exampleBtn" data-i18n="loadExample">載入示範</button>
         </div>
-        <div class="preview" id="preview" aria-live="polite">
-          <div class="preview-empty"><div><div class="symbol">P.</div><div data-i18n="emptyPrompt">你的專業指令會出現在這裡。<br>從左側描述想完成的事開始。</div></div></div>
+        <div class="preview" id="preview">
+          <div class="preview-empty"><div><div class="symbol">P.</div><div data-i18n="emptyPrompt">你的專業指令會出現在這裡。<br>先描述你想完成的事。</div></div></div>
         </div>
         <div class="output-foot"><span class="save-state" data-i18n="savedLocally">草稿自動儲存在此裝置</span><span data-i18n="localOnly">不會上傳至伺服器</span></div>
       </aside>
@@ -312,26 +334,53 @@
       const storageKey = 'prompt-studio-v1';
       const translations = {
         zh: {
-          reset:'清空內容', eyebrow:'PROMPT BUILDER / 01', headline:'把想法，整理成<br>真正能執行的指令。', subhead:'不用先學會提示工程。回答幾個關鍵問題，讓零散的需求變成清楚、有層次、能驗收的工作說明。', heroNote1:'從需求出發', heroNote2:'而不是從提示詞模板出發', presetLabel:'快速開始', presetResearch:'研究分析', presetWriting:'內容寫作', presetBuild:'網站／產品開發', presetLearn:'學習規劃', presetData:'資料整理', presetBlank:'從空白開始', formTitle:'需求設定', formKicker:'YOUR BRIEF', s1:'你想完成什麼？', s1hint:'先描述最後想拿到的成果，不用急著想怎麼做。', goalPh:'例如：幫我規劃一套能持續執行的個人品牌內容策略，包含定位、內容支柱與每週發布節奏。', s2:'讓 AI 站在什麼位置？', s2hint:'設定專業身份與視角，不必堆疊誇張頭銜。', rolePh:'例如：具備品牌策略與數位行銷經驗的顧問', s3:'補上必要背景', s3hint:'提供對象、現況、資源、已知資訊，避免 AI 自行腦補。', contextPh:'目前的狀況是什麼？目標受眾是誰？有哪些已知資料、工具或資源？', s4:'工作要怎麼進行？', s4hint:'把任務拆成步驟；每行一個動作，順序就是執行順序。', stepsPh:'1. 先盤點現況與主要問題\n2. 提出 2–3 種策略方向並比較\n3. 選定方向後，整理成可執行計畫', s5:'有參考資料或範例嗎？', s5hint:'可貼上範例、網址、既有內容，或描述你喜歡／不喜歡的方向。', examplesPh:'參考方向、範例內容、需要沿用的資料……', s6:'有哪些規則與界線？', s6hint:'例如預算、字數、時程、禁用內容、技術限制、不可變動事項。', constraintsPh:'例如：預算不超過 NT$30,000；使用繁體中文；不要使用空泛口號；不可捏造數據。', s7:'成果要如何呈現？', formatLabel:'輸出形式', formatMarkdown:'結構化文件（Markdown）', formatTable:'表格', formatReport:'專業報告', formatSteps:'步驟／操作指南', formatJson:'JSON', formatCode:'程式碼＋說明', formatCustom:'依任務自行判斷', depthLabel:'內容深度', depthBalanced:'完整但精煉', depthDeep:'深入詳盡', depthBrief:'重點摘要', toneLabel:'語氣／風格', tonePh:'例如：直接、專業、自然，不要官腔', langLabel:'指令與成果語言', langAuto:'跟隨使用者語言', langZh:'繁體中文', langEn:'English', langJa:'日本語', s8:'怎樣才算做好？', s8hint:'定義可檢查的完成標準，讓成果不只看起來完整。', criteriaPh:'例如：策略有明確優先順序；每項建議都附上執行方式；計畫能在每週 5 小時內落地。', s9:'指定 AI 的處理原則', checkMissing:'資訊不足時先指出缺口，必要時提問', checkNoGuess:'不虛構事實、數據或來源', checkLogic:'檢查需求矛盾與隱含假設', checkReview:'交付前依標準自我檢查', optional:'選填', outputTitle:'指令預覽', completeness:'完整度', startTyping:'填寫需求後即時生成', copy:'複製完整指令', download:'下載 .md', loadExample:'載入示範', emptyPrompt:'你的專業指令會出現在這裡。<br>從左側描述想完成的事開始。', savedLocally:'草稿自動儲存在此裝置', localOnly:'不會上傳至伺服器', footLeft:'好指令不是寫得很長，而是讓目標、脈絡與判準都足夠清楚。', progress:'已完成 {n} / 8 個核心欄位', copied:'已複製完整指令', copyFail:'無法自動複製，請手動選取文字', downloaded:'檔案已準備下載', resetDone:'已清空所有欄位', exampleLoaded:'已載入示範需求', needGoal:'先填寫「你想完成什麼」，指令才有明確方向。'
+          reset:'清空內容', eyebrow:'PROMPT BUILDER / 01', headline:'把想法，整理成<br>真正能執行的指令。', subhead:'不用先學會提示工程。回答幾個關鍵問題，讓零散的需求變成清楚、有層次、能驗收的工作說明。', heroNote1:'從需求出發', heroNote2:'而不是從提示詞模板出發', presetLabel:'快速開始', presetResearch:'研究分析', presetWriting:'內容寫作', presetBuild:'網站／產品開發', presetLearn:'學習規劃', presetData:'資料整理', presetBlank:'從空白開始', formTitle:'需求設定', formKicker:'YOUR BRIEF', s1:'你想完成什麼？', s1hint:'先描述最後想拿到的成果，不用急著想怎麼做。', goalPh:'例如：幫我規劃一套能持續執行的個人品牌內容策略，包含定位、內容支柱與每週發布節奏。', s2:'讓 AI 站在什麼位置？', s2hint:'設定專業身份與視角，不必堆疊誇張頭銜。', rolePh:'例如：具備品牌策略與數位行銷經驗的顧問', s3:'補上必要背景', s3hint:'提供對象、現況、資源、已知資訊，避免 AI 自行腦補。', contextPh:'目前的狀況是什麼？目標受眾是誰？有哪些已知資料、工具或資源？', s4:'工作要怎麼進行？', s4hint:'把任務拆成步驟；每行一個動作，順序就是執行順序。', stepsPh:'1. 先盤點現況與主要問題\n2. 提出 2–3 種策略方向並比較\n3. 選定方向後，整理成可執行計畫', s5:'有參考資料或範例嗎？', s5hint:'可貼上範例、網址、既有內容，或描述你喜歡／不喜歡的方向。', examplesPh:'參考方向、範例內容、需要沿用的資料……', s6:'有哪些規則與界線？', s6hint:'例如預算、字數、時程、禁用內容、技術限制、不可變動事項。', constraintsPh:'例如：預算不超過 NT$30,000；使用繁體中文；不要使用空泛口號；不可捏造數據。', s7:'成果要如何呈現？', formatLabel:'輸出形式', formatMarkdown:'結構化文件（Markdown）', formatTable:'表格', formatReport:'專業報告', formatSteps:'步驟／操作指南', formatJson:'JSON', formatCode:'程式碼＋說明', formatCustom:'依任務自行判斷', depthLabel:'內容深度', depthBalanced:'完整但精煉', depthDeep:'深入詳盡', depthBrief:'重點摘要', toneLabel:'語氣／風格', tonePh:'例如：直接、專業、自然，不要官腔', langLabel:'成果語言', langAuto:'跟隨使用者語言', langZh:'繁體中文', langEn:'English', langJa:'日本語', s8:'怎樣才算做好？', s8hint:'定義可檢查的完成標準，讓成果不只看起來完整。', criteriaPh:'例如：策略有明確優先順序；每項建議都附上執行方式；計畫能在每週 5 小時內落地。', s9:'指定 AI 的處理原則', checkMissing:'資訊不足時先指出缺口，必要時提問', checkNoGuess:'不虛構事實、數據或來源', checkLogic:'檢查需求矛盾與隱含假設', checkReview:'交付前依標準自我檢查', optional:'選填', outputTitle:'指令預覽', completeness:'完整度', copy:'複製完整指令', download:'下載 .md', loadExample:'載入示範', emptyPrompt:'你的專業指令會出現在這裡。<br>先描述你想完成的事。', savedLocally:'草稿自動儲存在此裝置', localOnly:'不會上傳至伺服器', footLeft:'好指令不是寫得很長，而是讓目標、脈絡與判準都足夠清楚。', progress:'已完成 {n} / 7 個核心欄位', copied:'已複製完整指令', copyFail:'無法自動複製，請手動選取文字', downloaded:'檔案已準備下載', resetDone:'已清空所有欄位', exampleLoaded:'已載入示範需求', needGoal:'先填寫「你想完成什麼」，指令才有明確方向。', brandSub:'指令工坊', pageTitle:'Prompt Studio — 指令工坊', metaDesc:'把零散需求整理成清楚、可執行、可驗收的 AI 專業指令。', chars:'{n} 字元', confirmReplace:'載入後會取代目前已填寫的內容，確定要繼續嗎？', confirmClear:'確定要清空所有已填寫的內容嗎？此動作無法復原。'
         },
         en: {
-          reset:'Clear', eyebrow:'PROMPT BUILDER / 01', headline:'Turn your ideas into<br>instructions that work.', subhead:'No prompt-engineering expertise needed. Answer a few focused questions to turn a loose request into a clear, structured brief with measurable outcomes.', heroNote1:'Start with the actual need', heroNote2:'not a generic prompt template', presetLabel:'START WITH', presetResearch:'Research', presetWriting:'Writing', presetBuild:'Web / Product', presetLearn:'Learning plan', presetData:'Data work', presetBlank:'Start blank', formTitle:'Define the brief', formKicker:'YOUR BRIEF', s1:'What do you want to achieve?', s1hint:'Describe the outcome first. You do not need to plan the method yet.', goalPh:'e.g. Build a sustainable content strategy for a personal brand, including positioning, content pillars, and a weekly publishing rhythm.', s2:'What role should the AI take?', s2hint:'Set a useful professional perspective. Avoid inflated titles.', rolePh:'e.g. A consultant experienced in brand strategy and digital marketing', s3:'Add the relevant context', s3hint:'Share the audience, current situation, resources, and known facts. Do not leave the AI to guess.', contextPh:'What is the current situation? Who is the audience? What information, tools, or resources are available?', s4:'How should the work be done?', s4hint:'Break the task into steps. Use one action per line, in execution order.', stepsPh:'1. Review the current situation and main problems\n2. Propose and compare 2–3 strategic directions\n3. Turn the selected direction into an actionable plan', s5:'Any references or examples?', s5hint:'Paste examples, URLs, existing material, or describe what you do and do not like.', examplesPh:'References, examples, material to reuse…', s6:'What are the rules and boundaries?', s6hint:'For example: budget, length, deadline, exclusions, technical limits, or non-negotiables.', constraintsPh:'e.g. Budget under USD 1,000; use plain language; avoid generic slogans; never fabricate data.', s7:'How should the result be presented?', formatLabel:'Output format', formatMarkdown:'Structured document (Markdown)', formatTable:'Table', formatReport:'Professional report', formatSteps:'Steps / Playbook', formatJson:'JSON', formatCode:'Code + explanation', formatCustom:'Choose what fits the task', depthLabel:'Level of detail', depthBalanced:'Thorough and concise', depthDeep:'In-depth', depthBrief:'Key points only', toneLabel:'Tone / style', tonePh:'e.g. Direct, professional, natural; no corporate jargon', langLabel:'Prompt and output language', langAuto:'Follow the user’s language', langZh:'Traditional Chinese', langEn:'English', langJa:'Japanese', s8:'What does good look like?', s8hint:'Define observable completion criteria, not just a polished-looking answer.', criteriaPh:'e.g. Prioritized strategy; each recommendation includes an action; plan can be executed in five hours per week.', s9:'Set the AI’s operating principles', checkMissing:'Identify information gaps and ask when necessary', checkNoGuess:'Do not invent facts, data, or sources', checkLogic:'Check for contradictions and hidden assumptions', checkReview:'Review the result against the criteria before delivery', optional:'OPTIONAL', outputTitle:'Prompt preview', completeness:'Completeness', startTyping:'Your prompt updates as you type', copy:'Copy full prompt', download:'Download .md', loadExample:'Load example', emptyPrompt:'Your structured prompt will appear here.<br>Start by describing the outcome on the left.', savedLocally:'Draft saved on this device', localOnly:'Nothing is uploaded', footLeft:'A good prompt is not necessarily long. It makes the goal, context, and success criteria unmistakable.', progress:'{n} / 8 core fields completed', copied:'Full prompt copied', copyFail:'Could not copy automatically. Please select the text.', downloaded:'Your file is ready', resetDone:'All fields cleared', exampleLoaded:'Example brief loaded', needGoal:'Start with “What do you want to achieve?” to give the prompt a clear direction.'
+          reset:'Clear', eyebrow:'PROMPT BUILDER / 01', headline:'Turn your ideas into<br>instructions that work.', subhead:'No prompt-engineering expertise needed. Answer a few focused questions to turn a loose request into a clear, structured brief with measurable outcomes.', heroNote1:'Start with the actual need', heroNote2:'not a generic prompt template', presetLabel:'START WITH', presetResearch:'Research', presetWriting:'Writing', presetBuild:'Web / Product', presetLearn:'Learning plan', presetData:'Data work', presetBlank:'Start blank', formTitle:'Define the brief', formKicker:'YOUR BRIEF', s1:'What do you want to achieve?', s1hint:'Describe the outcome first. You do not need to plan the method yet.', goalPh:'e.g. Build a sustainable content strategy for a personal brand, including positioning, content pillars, and a weekly publishing rhythm.', s2:'What role should the AI take?', s2hint:'Set a useful professional perspective. Avoid inflated titles.', rolePh:'e.g. A consultant experienced in brand strategy and digital marketing', s3:'Add the relevant context', s3hint:'Share the audience, current situation, resources, and known facts. Do not leave the AI to guess.', contextPh:'What is the current situation? Who is the audience? What information, tools, or resources are available?', s4:'How should the work be done?', s4hint:'Break the task into steps. Use one action per line, in execution order.', stepsPh:'1. Review the current situation and main problems\n2. Propose and compare 2–3 strategic directions\n3. Turn the selected direction into an actionable plan', s5:'Any references or examples?', s5hint:'Paste examples, URLs, existing material, or describe what you do and do not like.', examplesPh:'References, examples, material to reuse…', s6:'What are the rules and boundaries?', s6hint:'For example: budget, length, deadline, exclusions, technical limits, or non-negotiables.', constraintsPh:'e.g. Budget under USD 1,000; use plain language; avoid generic slogans; never fabricate data.', s7:'How should the result be presented?', formatLabel:'Output format', formatMarkdown:'Structured document (Markdown)', formatTable:'Table', formatReport:'Professional report', formatSteps:'Steps / Playbook', formatJson:'JSON', formatCode:'Code + explanation', formatCustom:'Choose what fits the task', depthLabel:'Level of detail', depthBalanced:'Thorough and concise', depthDeep:'In-depth', depthBrief:'Key points only', toneLabel:'Tone / style', tonePh:'e.g. Direct, professional, natural; no corporate jargon', langLabel:'Output language', langAuto:'Follow the user’s language', langZh:'Traditional Chinese', langEn:'English', langJa:'Japanese', s8:'What does good look like?', s8hint:'Define observable completion criteria, not just a polished-looking answer.', criteriaPh:'e.g. Prioritized strategy; each recommendation includes an action; plan can be executed in five hours per week.', s9:'Set the AI’s operating principles', checkMissing:'Identify information gaps and ask when necessary', checkNoGuess:'Do not invent facts, data, or sources', checkLogic:'Check for contradictions and hidden assumptions', checkReview:'Review the result against the criteria before delivery', optional:'OPTIONAL', outputTitle:'Prompt preview', completeness:'Completeness', copy:'Copy full prompt', download:'Download .md', loadExample:'Load example', emptyPrompt:'Your structured prompt will appear here.<br>Start by describing the outcome you want.', savedLocally:'Draft saved on this device', localOnly:'Nothing is uploaded', footLeft:'A good prompt is not necessarily long. It makes the goal, context, and success criteria unmistakable.', progress:'{n} / 7 core fields completed', copied:'Full prompt copied', copyFail:'Could not copy automatically. Please select the text.', downloaded:'Your file is ready', resetDone:'All fields cleared', exampleLoaded:'Example brief loaded', needGoal:'Start with “What do you want to achieve?” to give the prompt a clear direction.', brandSub:'PROMPT WORKSHOP', pageTitle:'Prompt Studio — Prompt Workshop', metaDesc:'Turn a loose request into a clear, actionable AI prompt with measurable success criteria.', chars:'{n} chars', confirmReplace:'This will replace what you have entered so far. Continue?', confirmClear:'Clear everything you have entered? This cannot be undone.'
         }
       };
       const presetData = {
-        research: { role:'具備產業研究與策略分析經驗的研究顧問', goal:'針對指定主題進行系統性研究，整理核心概念、關鍵證據、不同觀點與可執行的結論。', context:'請先確認研究範圍、時間區間、主要利害關係人與資料來源。重要事實應可追溯至可靠來源。', steps:'1. 界定研究問題與範圍\n2. 蒐集並交叉檢查可靠資料\n3. 整理主要發現、爭議與不確定性\n4. 提出結論、建議及後續研究方向', format:'report', depth:'deep', criteria:'區分事實、推論與建議；重要主張提供來源；標示資料日期與限制；結論能直接回應研究問題。' },
-        writing: { role:'熟悉目標受眾、內容策略與文字編輯的資深編輯', goal:'撰寫一份有明確目的、能吸引目標讀者並促使其採取下一步行動的內容。', context:'請依照實際受眾的知識程度、閱讀情境與內容發布平台調整表達方式。', steps:'1. 確認讀者需求與內容目的\n2. 擬定核心訊息與文章架構\n3. 完成初稿並檢查邏輯與節奏\n4. 刪除重複、空泛及不必要的句子', format:'markdown', tone:'自然、清楚、有觀點；避免制式 AI 腔與過度行銷語氣', criteria:'開頭能說明讀者為何需要閱讀；段落有清楚推進；資訊具體；結尾有合理的下一步。' },
-        build: { role:'具備產品思維、UX 設計與前端工程能力的資深產品工程師', goal:'將需求轉換成可實際使用的網站或產品，完成資訊架構、操作流程、介面與必要功能。', context:'優先考慮易用性、載入效能、可維護性、無障礙與不同尺寸裝置的使用體驗。若技術選型未指定，請先比較合適方案。', steps:'1. 釐清使用者、情境與核心任務\n2. 定義資訊架構與主要操作流程\n3. 規劃視覺系統與元件\n4. 實作核心功能並處理錯誤狀態\n5. 測試桌面與行動裝置，修正問題', format:'steps', depth:'deep', tone:'簡潔、務實，以可交付成果為主', criteria:'主要流程可完整操作；介面具一致性；具備空狀態、錯誤狀態及響應式版面；沒有無作用的控制項。' },
-        learn: { role:'擅長成人學習、課程設計與能力培養的學習教練', goal:'根據我的目標與目前程度，設計一套有順序、可執行、能追蹤成效的學習計畫。', context:'請考慮可投入時間、已有基礎、學習資源與最終希望具備的實作能力。', steps:'1. 評估起點與目標差距\n2. 將能力拆成循序漸進的模組\n3. 安排每週學習與實作任務\n4. 設計檢核點與複習機制\n5. 根據成果調整下一階段', format:'table', criteria:'每個階段有明確目標、資源、練習及完成標準；工作量符合可投入時間；能透過實作驗證學習成果。' },
-        data: { role:'重視資料品質、統計邏輯與可追溯性的資料分析師', goal:'整理提供的資料，找出主要趨勢、異常、關聯與可支持的結論。', context:'先理解資料欄位、單位、期間、缺失值與蒐集方式。不可將相關性直接解讀為因果關係。', steps:'1. 檢查資料結構與品質\n2. 說明清理及分析假設\n3. 進行適當的比較與分析\n4. 整理發現與限制\n5. 提出可驗證的後續行動', format:'table', depth:'deep', criteria:'分析可重現；計算與單位清楚；不忽略資料限制；每項結論均有資料支持。' }
+        zh: {
+          research: { role:'具備產業研究與策略分析經驗的研究顧問', goal:'針對指定主題進行系統性研究，整理核心概念、關鍵證據、不同觀點與可執行的結論。', context:'請先確認研究範圍、時間區間、主要利害關係人與資料來源。重要事實應可追溯至可靠來源。', steps:'1. 界定研究問題與範圍\n2. 蒐集並交叉檢查可靠資料\n3. 整理主要發現、爭議與不確定性\n4. 提出結論、建議及後續研究方向', format:'report', depth:'deep', criteria:'區分事實、推論與建議；重要主張提供來源；標示資料日期與限制；結論能直接回應研究問題。' },
+          writing: { role:'熟悉目標受眾、內容策略與文字編輯的資深編輯', goal:'撰寫一份有明確目的、能吸引目標讀者並促使其採取下一步行動的內容。', context:'請依照實際受眾的知識程度、閱讀情境與內容發布平台調整表達方式。', steps:'1. 確認讀者需求與內容目的\n2. 擬定核心訊息與文章架構\n3. 完成初稿並檢查邏輯與節奏\n4. 刪除重複、空泛及不必要的句子', format:'markdown', tone:'自然、清楚、有觀點；避免制式 AI 腔與過度行銷語氣', criteria:'開頭能說明讀者為何需要閱讀；段落有清楚推進；資訊具體；結尾有合理的下一步。' },
+          build: { role:'具備產品思維、UX 設計與前端工程能力的資深產品工程師', goal:'將需求轉換成可實際使用的網站或產品，完成資訊架構、操作流程、介面與必要功能。', context:'優先考慮易用性、載入效能、可維護性、無障礙與不同尺寸裝置的使用體驗。若技術選型未指定，請先比較合適方案。', steps:'1. 釐清使用者、情境與核心任務\n2. 定義資訊架構與主要操作流程\n3. 規劃視覺系統與元件\n4. 實作核心功能並處理錯誤狀態\n5. 測試桌面與行動裝置，修正問題', format:'steps', depth:'deep', tone:'簡潔、務實，以可交付成果為主', criteria:'主要流程可完整操作；介面具一致性；具備空狀態、錯誤狀態及響應式版面；沒有無作用的控制項。' },
+          learn: { role:'擅長成人學習、課程設計與能力培養的學習教練', goal:'根據我的目標與目前程度，設計一套有順序、可執行、能追蹤成效的學習計畫。', context:'請考慮可投入時間、已有基礎、學習資源與最終希望具備的實作能力。', steps:'1. 評估起點與目標差距\n2. 將能力拆成循序漸進的模組\n3. 安排每週學習與實作任務\n4. 設計檢核點與複習機制\n5. 根據成果調整下一階段', format:'table', criteria:'每個階段有明確目標、資源、練習及完成標準；工作量符合可投入時間；能透過實作驗證學習成果。' },
+          data: { role:'重視資料品質、統計邏輯與可追溯性的資料分析師', goal:'整理提供的資料，找出主要趨勢、異常、關聯與可支持的結論。', context:'先理解資料欄位、單位、期間、缺失值與蒐集方式。不可將相關性直接解讀為因果關係。', steps:'1. 檢查資料結構與品質\n2. 說明清理及分析假設\n3. 進行適當的比較與分析\n4. 整理發現與限制\n5. 提出可驗證的後續行動', format:'table', depth:'deep', criteria:'分析可重現；計算與單位清楚；不忽略資料限制；每項結論均有資料支持。' }
+        },
+        en: {
+          research: { role:"A research consultant experienced in industry research and strategic analysis", goal:"Conduct systematic research on the specified topic and summarize the core concepts, key evidence, differing viewpoints, and actionable conclusions.", context:"First confirm the research scope, time period, key stakeholders, and data sources. Important facts must be traceable to reliable sources.", steps:"1. Define the research question and scope\n2. Gather and cross-check reliable data\n3. Summarize key findings, debates, and uncertainties\n4. Present conclusions, recommendations, and directions for further research", format:'report', depth:'deep', criteria:"Distinguish facts, inferences, and recommendations; cite sources for key claims; note data dates and limitations; conclusions directly answer the research question." },
+          writing: { role:"A senior editor familiar with the target audience, content strategy, and copy editing", goal:"Write a piece of content with a clear purpose that engages the target readers and prompts them to take the next step.", context:"Adapt the writing to the audience's knowledge level, reading context, and publishing platform.", steps:"1. Confirm reader needs and the purpose of the content\n2. Draft the core message and structure\n3. Write a first draft and check its logic and pacing\n4. Remove repetitive, vague, and unnecessary sentences", format:'markdown', tone:"Natural, clear, and opinionated; avoid generic AI phrasing and an overly promotional tone", criteria:"The opening explains why readers should care; paragraphs progress clearly; information is specific; the ending offers a sensible next step." },
+          build: { role:"A senior product engineer with product thinking, UX design, and front-end engineering skills", goal:"Turn the requirements into a usable website or product, covering information architecture, user flows, interface, and essential features.", context:"Prioritize usability, loading performance, maintainability, accessibility, and a good experience across screen sizes. If no tech stack is specified, compare suitable options first.", steps:"1. Clarify the users, scenarios, and core tasks\n2. Define the information architecture and main user flows\n3. Plan the visual system and components\n4. Implement the core features and handle error states\n5. Test on desktop and mobile, and fix issues", format:'steps', depth:'deep', tone:"Concise and practical, focused on deliverables", criteria:"Main flows work end to end; the interface is consistent; empty states, error states, and responsive layouts are handled; there are no non-functional controls." },
+          learn: { role:"A learning coach skilled in adult learning, curriculum design, and skill development", goal:"Based on my goals and current level, design a sequenced, actionable learning plan with trackable progress.", context:"Consider the time available, existing knowledge, learning resources, and the practical skills I ultimately want to have.", steps:"1. Assess the starting point and the gap to the goal\n2. Break the skills into progressive modules\n3. Schedule weekly study and practice tasks\n4. Design checkpoints and review routines\n5. Adjust the next stage based on results", format:'table', criteria:"Each stage has clear goals, resources, exercises, and completion criteria; the workload fits the available time; learning can be verified through hands-on practice." },
+          data: { role:"A data analyst who values data quality, statistical rigor, and traceability", goal:"Organize the provided data and identify the main trends, anomalies, relationships, and well-supported conclusions.", context:"First understand the fields, units, time period, missing values, and how the data was collected. Do not interpret correlation as causation.", steps:"1. Check the data structure and quality\n2. State cleaning and analysis assumptions\n3. Perform appropriate comparisons and analysis\n4. Summarize findings and limitations\n5. Propose verifiable next actions", format:'table', depth:'deep', criteria:"The analysis is reproducible; calculations and units are clear; data limitations are not ignored; every conclusion is supported by the data." }
+        }
       };
+      const exampleData = {
+        zh: { goal:'設計一個極簡風格的個人作品集網站，讓訪客能快速理解我的專業、瀏覽代表作品，並透過表單聯絡我。', context:'主要訪客是潛在客戶與合作夥伴。網站需以手機瀏覽為優先，同時在桌面裝置保持良好閱讀體驗。希望視覺安靜、有編輯感，不使用常見 AI 生成式漸層與過度裝飾。', steps:'1. 先整理網站資訊架構與使用者瀏覽路徑\n2. 規劃首頁、作品列表、作品細節與聯絡區塊\n3. 建立一致的字體、間距、色彩與元件規則\n4. 實作響應式版面與聯絡表單\n5. 檢查無障礙、載入效能與各尺寸畫面', constraints:'不使用需要付費的外部服務；避免不必要的動畫；不要放入虛構經歷、客戶或作品。', criteria:'訪客能在 10 秒內理解網站用途；主要內容在手機與桌面均清楚；導航與聯絡流程可正常操作；頁面沒有裝飾性但無功能的按鈕。' },
+        en: { goal:"Design a minimalist personal portfolio website that helps visitors quickly understand my expertise, browse featured work, and contact me through a form.", context:"The main visitors are potential clients and collaborators. The site should be mobile-first while staying comfortable to read on desktop. The visual style should be calm and editorial, without typical AI-generated gradients or excessive decoration.", steps:"1. Define the site's information architecture and visitor journeys\n2. Plan the home page, project list, project detail, and contact sections\n3. Establish consistent rules for typography, spacing, color, and components\n4. Implement the responsive layout and contact form\n5. Check accessibility, loading performance, and every screen size", constraints:"No paid third-party services; avoid unnecessary animation; do not include fictional experience, clients, or work.", criteria:"Visitors understand the site's purpose within 10 seconds; key content is clear on mobile and desktop; navigation and the contact flow work; there are no decorative buttons without a function." }
+      };
+      const textFields = ['goal','role','context','steps','examples','constraints','tone','criteria'];
+      const selectFields = ['format','depth','outputLang'];
+      const checkFields = ['askMissing','noGuess','checkLogic','selfReview'];
+      const scoreFields = ['goal','role','context','steps','examples','constraints','criteria'];
       let currentLang = (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+      // Name of the preset/example whose content is still untouched by the user; null once the user edits.
+      let pristineSource = null;
       let toastTimer;
+      // Saving is disabled until start-up finishes, so a failed restore can never overwrite the stored draft.
+      let canSave = false;
       const t = (key) => translations[currentLang][key] || key;
       const value = (id) => $(id).type === 'checkbox' ? $(id).checked : $(id).value.trim();
+      const isValidOption = (id, val) => [...$(id).options].some(o => o.value === val);
+      const defaultOption = (id) => ([...$(id).options].find(o => o.defaultSelected) || $(id).options[0]).value;
+      const hasContent = () => textFields.some(id => value(id));
+      const needsConfirm = () => hasContent() && !pristineSource;
       function applyLanguage(lang) {
         currentLang = lang;
         document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
+        document.title = t('pageTitle');
+        document.querySelector('meta[name="description"]').setAttribute('content', t('metaDesc'));
         document.querySelectorAll('[data-i18n]').forEach(el => {
           const key = el.dataset.i18n;
           if (translations[lang][key]) el.innerHTML = translations[lang][key];
@@ -340,13 +389,22 @@
           const key = el.dataset.i18nPlaceholder;
           if (translations[lang][key]) el.placeholder = translations[lang][key];
         });
-        document.querySelectorAll('[data-lang]').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
+        document.querySelectorAll('[data-lang]').forEach(btn => {
+          const active = btn.dataset.lang === lang;
+          btn.classList.toggle('active', active);
+          btn.setAttribute('aria-pressed', String(active));
+        });
+        // Untouched preset/example content follows the interface language.
+        if (pristineSource) applySource(pristineSource);
         updatePreview();
       }
+      // Escape a leading "#" on each line so user text cannot create Markdown headings inside the prompt.
+      const escapeHeadings = (text) => text.replace(/^(\s*)#/gm, '$1\\#');
       function section(title, body) { return body ? `## ${title}\n${body}\n\n` : ''; }
       function buildPrompt() {
         const v = Object.fromEntries(fields.map(id => [id, value(id)]));
         if (!v.goal) return '';
+        textFields.forEach(id => { v[id] = escapeHeadings(v[id]); });
         const en = currentLang === 'en';
         const headings = en ? {
           role:'ROLE & PERSPECTIVE', task:'OBJECTIVE', context:'BACKGROUND & CONTEXT', process:'EXECUTION PLAN', refs:'REFERENCES & EXAMPLES', limits:'CONSTRAINTS & BOUNDARIES', output:'OUTPUT SPECIFICATION', quality:'SUCCESS CRITERIA', rules:'OPERATING RULES', final:'FINAL INSTRUCTION'
@@ -362,13 +420,21 @@
         if (v.constraints) lines.push(section(headings.limits, v.constraints));
         const formatMap = en ? {markdown:'Structured Markdown document',table:'Tables where comparisons or structured data help',report:'Professional report',steps:'Step-by-step guide / playbook',json:'Valid JSON only, following a clearly defined schema',code:'Working code with concise implementation notes',custom:'Choose the format best suited to the task'} : {markdown:'使用有層次的 Markdown 文件',table:'適合比較或整理資料的表格',report:'專業報告',steps:'逐步操作指南／執行手冊',json:'僅輸出有效 JSON，並遵守清楚的資料結構',code:'可執行程式碼及必要的實作說明',custom:'依任務性質選擇最合適的形式'};
         const depthMap = en ? {balanced:'Thorough but concise',deep:'In-depth, with reasoning and relevant detail',brief:'Focus on key takeaways'} : {balanced:'完整但精煉，優先保留有用資訊',deep:'深入詳盡，交代必要推理與細節',brief:'聚焦核心重點，避免不必要的延伸'};
-        const languageMap = {auto: en ? 'Use the language of the user’s request unless otherwise specified.' : '除非另有指定，使用使用者提問時的語言。', 'zh-TW':'繁體中文',en:'English',ja:'日本語'};
-        let output = `- Format: ${formatMap[v.format]}\n- Detail: ${depthMap[v.depth]}\n- Language: ${languageMap[v.outputLang]}`;
-        if (v.tone) output += `\n- Tone and style: ${v.tone}`;
+        const languageMap = en
+          ? {auto:'Use the language of the user’s request unless otherwise specified.', 'zh-TW':'Traditional Chinese', en:'English', ja:'Japanese'}
+          : {auto:'除非另有指定，使用使用者提問時的語言。', 'zh-TW':'繁體中文', en:'英文', ja:'日文'};
+        const label = en
+          ? {format:'Format', detail:'Detail', language:'Language', tone:'Tone and style', jsonNote:'JSON notes'}
+          : {format:'格式', detail:'詳細程度', language:'語言', tone:'語氣與風格', jsonNote:'JSON 補充'};
+        let output = `- ${label.format}: ${formatMap[v.format]}\n- ${label.detail}: ${depthMap[v.depth]}\n- ${label.language}: ${languageMap[v.outputLang]}`;
+        if (v.tone) output += `\n- ${label.tone}: ${v.tone}`;
+        if (v.format === 'json') output += `\n- ${label.jsonNote}: ` + (en
+          ? 'Ask any clarification questions before producing the JSON. Once producing it, put assumptions, scope notes, and conflicts in an agreed field (for example `notes`) instead of outside the JSON.'
+          : '澄清問題請在輸出 JSON 之前提出；開始輸出後，假設、範圍說明與衝突請放在約定的欄位（例如 `notes`），不要寫在 JSON 之外。');
         lines.push(section(headings.output, output));
         if (v.criteria) lines.push(section(headings.quality, v.criteria));
         const rules = [];
-        if (v.askMissing) rules.push(en ? 'When essential information is missing, identify the gap and ask the smallest number of necessary clarification questions before making assumptions.' : '若缺少完成任務所需的關鍵資訊，先明確指出缺口，並提出最少且必要的澄清問題，不要自行假設。');
+        if (v.askMissing) rules.push(en ? 'When essential information is missing, identify the gap and ask the minimum necessary clarification questions first. If you cannot ask, state each assumption explicitly before proceeding.' : '若缺少完成任務所需的關鍵資訊，先明確指出缺口，並提出最少且必要的澄清問題；若無法提問，請明確標示所採用的假設後再繼續。');
         if (v.noGuess) rules.push(en ? 'Never fabricate facts, statistics, quotations, sources, or completed actions. Clearly label uncertainty and distinguish verified facts from assumptions or recommendations.' : '不得捏造事實、數據、引言、來源或已完成的行動。清楚標示不確定性，並區分已知事實、假設與建議。');
         if (v.checkLogic) rules.push(en ? 'Check the request for contradictions, missing dependencies, and hidden assumptions. Explain material conflicts before proceeding.' : '檢查需求中的矛盾、前置條件與隱含假設；若存在會影響成果的衝突，先說明再處理。');
         if (v.selfReview) rules.push(en ? 'Before delivering, review the result against the stated objective, constraints, and success criteria. Correct omissions and inconsistencies.' : '交付前依照目標、限制與驗收標準檢查成果，修正遺漏、矛盾與不一致之處。');
@@ -379,12 +445,12 @@
       }
       function updatePreview() {
         const prompt = buildPrompt();
-        const completed = ['goal','role','context','steps','examples','constraints','criteria'].filter(id => value(id)).length;
-        const score = Math.round((completed / 7) * 100);
+        const completed = scoreFields.filter(id => value(id)).length;
+        const score = Math.round((completed / scoreFields.length) * 100);
         $('score').textContent = `${score}%`;
         $('progressBar').style.width = `${score}%`;
         $('progressText').textContent = t('progress').replace('{n}', completed);
-        $('wordCount').textContent = `${prompt.length.toLocaleString()} chars`;
+        $('wordCount').textContent = t('chars').replace('{n}', prompt.length.toLocaleString());
         if (prompt) {
           const pre = document.createElement('pre');
           pre.textContent = prompt;
@@ -398,54 +464,78 @@
         saveDraft();
       }
       function saveDraft() {
+        if (!canSave) return;
         const data = {};
         fields.forEach(id => data[id] = value(id));
         try { localStorage.setItem(storageKey, JSON.stringify(data)); } catch (_) { /* Storage may be disabled. */ }
       }
       function restoreDraft() {
-        try {
-          const data = JSON.parse(localStorage.getItem(storageKey) || 'null');
-          if (!data) return;
-          fields.forEach(id => {
-            if (data[id] !== undefined) {
-              if ($(id).type === 'checkbox') $(id).checked = Boolean(data[id]);
-              else $(id).value = data[id];
-            }
-          });
-        } catch (_) { /* Ignore invalid local drafts. */ }
+        let data;
+        try { data = JSON.parse(localStorage.getItem(storageKey) || 'null'); } catch (_) { return; /* Ignore invalid local drafts. */ }
+        if (!data || typeof data !== 'object') return;
+        textFields.forEach(id => { if (typeof data[id] === 'string') $(id).value = data[id]; });
+        selectFields.forEach(id => { $(id).value = isValidOption(id, data[id]) ? data[id] : defaultOption(id); });
+        checkFields.forEach(id => { if (typeof data[id] === 'boolean') $(id).checked = data[id]; });
       }
       function showToast(message) {
         const toast = $('toast'); toast.textContent = message; toast.classList.add('show');
         clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2300);
       }
-      function loadPreset(name) {
+      function setActivePreset(name) {
         document.querySelectorAll('.preset').forEach(btn => btn.classList.toggle('active', btn.dataset.preset === name));
-        if (name === 'blank') { clearForm(false); return; }
-        const data = presetData[name]; if (!data) return;
-        Object.entries(data).forEach(([id, val]) => { if ($(id)) $(id).value = val; });
-        updatePreview();
-        document.querySelector('.form-panel').scrollIntoView({ behavior:'smooth', block:'start' });
       }
-      function clearForm(notify = true) {
+      // Clear text fields and reset selects to their defaults; checkboxes keep their state.
+      function resetContentFields() {
+        textFields.forEach(id => { $(id).value = ''; });
+        selectFields.forEach(id => { $(id).value = defaultOption(id); });
+      }
+      // Fill the form from a preset name or 'example' in the current interface language.
+      function applySource(source) {
+        resetContentFields();
+        const preset = presetData[currentLang][source === 'example' ? 'build' : source];
+        Object.entries(preset).forEach(([id, val]) => { $(id).value = val; });
+        if (source === 'example') Object.entries(exampleData[currentLang]).forEach(([id, val]) => { $(id).value = val; });
+      }
+      function loadSource(source) {
+        if (needsConfirm() && !window.confirm(t('confirmReplace'))) return false;
+        applySource(source);
+        pristineSource = source;
+        setActivePreset(source === 'example' ? 'build' : source);
+        updatePreview();
+        return true;
+      }
+      function loadPreset(name) {
+        if (name === 'blank') { clearForm(); return; }
+        if (!presetData[currentLang][name]) return;
+        if (loadSource(name)) document.querySelector('.form-panel').scrollIntoView({ behavior:'smooth', block:'start' });
+      }
+      function clearForm() {
+        if (needsConfirm() && !window.confirm(t('confirmClear'))) return;
         $('promptForm').reset();
-        document.querySelectorAll('.preset').forEach(btn => btn.classList.remove('active'));
+        pristineSource = null;
+        setActivePreset(null);
         try { localStorage.removeItem(storageKey); } catch (_) { /* Ignore. */ }
         updatePreview();
-        if (notify) showToast(t('resetDone'));
+        showToast(t('resetDone'));
       }
-      $('promptForm').addEventListener('input', updatePreview);
-      $('promptForm').addEventListener('change', updatePreview);
+      // Checkbox changes do not mark preset content as edited: presets never overwrite checkboxes.
+      const onUserEdit = (e) => { if (e.target.type !== 'checkbox') pristineSource = null; updatePreview(); };
+      $('promptForm').addEventListener('input', onUserEdit);
+      $('promptForm').addEventListener('change', onUserEdit);
       document.querySelectorAll('[data-lang]').forEach(btn => btn.addEventListener('click', () => applyLanguage(btn.dataset.lang)));
       document.querySelectorAll('[data-preset]').forEach(btn => btn.addEventListener('click', () => loadPreset(btn.dataset.preset)));
-      $('resetBtn').addEventListener('click', () => clearForm(true));
-      $('exampleBtn').addEventListener('click', () => { loadPreset('build'); $('goal').value = '設計一個極簡風格的個人作品集網站，讓訪客能快速理解我的專業、瀏覽代表作品，並透過表單聯絡我。'; $('context').value = '主要訪客是潛在客戶與合作夥伴。網站需以手機瀏覽為優先，同時在桌面裝置保持良好閱讀體驗。希望視覺安靜、有編輯感，不使用常見 AI 生成式漸層與過度裝飾。'; $('steps').value = '1. 先整理網站資訊架構與使用者瀏覽路徑\n2. 規劃首頁、作品列表、作品細節與聯絡區塊\n3. 建立一致的字體、間距、色彩與元件規則\n4. 實作響應式版面與聯絡表單\n5. 檢查無障礙、載入效能與各尺寸畫面'; $('constraints').value = '不使用需要付費的外部服務；避免不必要的動畫；不要放入虛構經歷、客戶或作品。'; $('criteria').value = '訪客能在 10 秒內理解網站用途；主要內容在手機與桌面均清楚；導航與聯絡流程可正常操作；頁面沒有裝飾性但無功能的按鈕。'; updatePreview(); showToast(t('exampleLoaded')); });
+      $('resetBtn').addEventListener('click', clearForm);
+      $('exampleBtn').addEventListener('click', () => { if (loadSource('example')) showToast(t('exampleLoaded')); });
       $('copyBtn').addEventListener('click', async () => {
         const prompt = buildPrompt();
         if (!prompt) { showToast(t('needGoal')); $('goal').focus(); return; }
         try { await navigator.clipboard.writeText(prompt); showToast(t('copied')); }
         catch (_) {
-          const area = document.createElement('textarea'); area.value = prompt; document.body.appendChild(area); area.select();
-          try { document.execCommand('copy'); showToast(t('copied')); } catch (err) { showToast(t('copyFail')); }
+          const area = document.createElement('textarea');
+          area.value = prompt; area.readOnly = true; area.setAttribute('aria-hidden', 'true');
+          area.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0;';
+          document.body.appendChild(area); area.select();
+          try { showToast(document.execCommand('copy') ? t('copied') : t('copyFail')); } catch (err) { showToast(t('copyFail')); }
           area.remove();
         }
       });
@@ -454,11 +544,13 @@
         if (!prompt) { showToast(t('needGoal')); $('goal').focus(); return; }
         const blob = new Blob([prompt], { type:'text/markdown;charset=utf-8' });
         const url = URL.createObjectURL(blob); const a = document.createElement('a');
-        a.href = url; a.download = 'structured-prompt.md'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        a.href = url; a.download = 'structured-prompt.md'; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
         showToast(t('downloaded'));
       });
       restoreDraft();
       applyLanguage(currentLang);
+      canSave = true;
     })();
   </script>
 </body>
