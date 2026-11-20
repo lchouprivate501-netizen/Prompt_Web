@@ -103,7 +103,9 @@ Prompt_Web/
 │       └── pages.yml   # 推送至 main 時自動部署到 GitHub Pages
 ├── .nojekyll           # 讓 GitHub Pages 直接提供檔案，不經 Jekyll 處理
 ├── index.html          # 網站入口：版面樣式、表單及前端互動邏輯
-└── README.md           # 專案說明與開發文件
+├── README.md           # 專案說明與開發文件
+└── tests/
+    └── run.js          # Playwright 瀏覽器自動化測試（不會被部署）
 ```
 
 `index.html` 採單檔架構：
@@ -297,14 +299,28 @@ https://lchouprivate501-netizen.github.io/Prompt_Web/
 - 可由使用者自行新增、命名及管理範本。
 - 保存使用者手動選擇的介面語言。
 - 更多輸出語言與語言偵測控制。
-- 單元測試與自動化瀏覽器測試。
+- 在 GitHub Actions 中自動執行 `tests/run.js`（目前需手動執行）。
 - 若未來加入雲端同步或 AI API，應另外設計明確的資料告知、權限與金鑰管理機制。
 
 以上為擴充方向，並非目前版本已實作的功能。
 
-## 8. 測試檢查清單
+## 8. 測試
 
-每次修改後，建議至少驗證以下項目：
+### 8.1 自動化測試
+
+`tests/run.js` 以 Playwright 驅動 Chromium，涵蓋下方檢查清單中可自動化的項目：範本切換與確認對話框、中英文輸出、草稿還原與驗證、標題跳脫與 XSS、複製與下載、以及 9 種裝置尺寸 × 中英文的版面（水平溢位、頁首單行、欄數、行動裝置輸入框字體 ≥ 16px）。
+
+```bash
+npm i -g playwright
+npx playwright install chromium
+node tests/run.js
+```
+
+腳本會在本機隨機埠啟動 HTTP 伺服器（`file://` 在 headless Chromium 中的 `localStorage` 行為不穩定），全部通過時結束碼為 0，任一項失敗為 1。測試檔不會被部署到 GitHub Pages。
+
+### 8.2 檢查清單
+
+每次修改後，除了執行自動化測試，建議至少驗證以下項目（iOS Safari 實機與螢幕閱讀器等項目無法自動化）：
 
 - [ ] 首次開啟網站時，繁中／英文初始介面判斷正常。
 - [ ] 手動切換介面語言後，標題、欄位標籤、按鈕文字及生成指令同步更新。
@@ -339,7 +355,7 @@ https://lchouprivate501-netizen.github.io/Prompt_Web/
 - 範本是起始草稿，不是特定產業或專業領域的完整規範；使用者仍需依實際情境檢查內容。
 - 目前只有繁體中文及英文介面；日文是可選的指令輸出語言，並非日文介面。
 - 草稿僅存在目前瀏覽器的 `localStorage`，不會跨裝置同步。
-- 專案目前只有 GitHub Pages 部署工作流程，尚未附上自動化測試或版本發布程序。
+- 自動化測試需手動執行，尚未接入 CI；專案也沒有版本發布程序。
 
 ## 10. 開發原則
 
