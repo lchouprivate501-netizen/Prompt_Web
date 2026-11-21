@@ -23,7 +23,7 @@ Prompt Studio 是一個純前端、免建置的提示詞編輯器。使用者透
 | 資料保存 | 瀏覽器 `localStorage` |
 | 介面語言 | 繁體中文、英文 |
 | 部署方式 | GitHub Pages（GitHub Actions 自動部署） |
-| 授權 | 尚未指定；請勿自行假設本專案採用特定開源授權 |
+| 授權 | [MIT License](LICENSE) |
 
 本專案不依賴 React、Vue、Angular、Node.js、npm 或任何第三方執行期套件。網站的 HTML、CSS 與 JavaScript 全部集中於 `index.html`，可直接由瀏覽器載入。
 
@@ -103,6 +103,7 @@ Prompt_Web/
 │       └── pages.yml   # 推送至 main 時自動部署到 GitHub Pages
 ├── .nojekyll           # 讓 GitHub Pages 直接提供檔案，不經 Jekyll 處理
 ├── index.html          # 網站入口：版面樣式、表單及前端互動邏輯
+├── LICENSE             # MIT 授權條款
 ├── README.md           # 專案說明與開發文件
 └── tests/
     └── run.js          # Playwright 瀏覽器自動化測試（不會被部署）
@@ -369,4 +370,4 @@ node tests/run.js
 
 ## License
 
-目前未在專案中指定授權條款。若要公開作為開源專案，請由專案維護者選擇合適授權（例如 MIT），並在 Repository 根目錄新增相應的 `LICENSE` 檔案後，再於此處標示授權資訊。
+本專案採用 [MIT License](LICENSE) 授權。可自由使用、修改、散布及商業利用，但須在副本中保留原始版權聲明與授權條款；軟體依「現狀」提供，不附任何擔保。
