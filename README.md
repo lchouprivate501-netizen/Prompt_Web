@@ -4,8 +4,8 @@
 
 Prompt Studio 是一個純前端、免建置的提示詞編輯器。使用者透過表單描述任務，應用程式會即時組合成 Markdown 格式的專業指令，並提供複製與下載功能。
 
-- **線上版本**：<https://lchouprivate501-netizen.github.io/Prompt_Web/>
-- **原始碼**：<https://github.com/lchouprivate501-netizen/Prompt_Web>
+- **線上版本**：<https://chou-lei.github.io/Prompt_Web/>
+- **原始碼**：<https://github.com/chou-lei/Prompt_Web>
 
 ---
 
@@ -123,7 +123,7 @@ Prompt_Web/
 1. 複製本專案：
 
    ```bash
-   git clone https://github.com/lchouprivate501-netizen/Prompt_Web.git
+   git clone https://github.com/chou-lei/Prompt_Web.git
    ```
 
 2. 使用現代瀏覽器開啟 `index.html`。
@@ -260,7 +260,7 @@ const storageKey = 'prompt-studio-v1';
 部署完成後的網址為：
 
 ```text
-https://lchouprivate501-netizen.github.io/Prompt_Web/
+https://chou-lei.github.io/Prompt_Web/
 ```
 
 實際網址以 **Settings → Pages** 頁面顯示為準。若日後改用自訂網域，請依 GitHub Pages 的網域設定流程操作。
